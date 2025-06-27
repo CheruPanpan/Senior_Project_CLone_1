@@ -1,0 +1,49 @@
+// 📌 Microsoft OAuth Login URL
+app.get('/auth/microsoft', (req, res) => {
+    const params = {
+        client_id: process.env.MICROSOFT_CLIENT_ID,
+        response_type: 'code',
+        redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+        scope: 'https://graph.microsoft.com/.default openid offline_access',
+    };
+
+    const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${querystring.stringify(params)}`;
+    res.redirect(authUrl);
+});
+
+// 📌 Microsoft OAuth Callback
+app.get('/auth/microsoft/callback', async (req, res) => {
+    const code = req.query.code;
+
+    if (!code) {
+        return res.status(400).send("❌ Microsoft Authorization Code not found");
+    }
+
+    try {
+        // ✅ แลกเปลี่ยน Code เป็น Access Token
+        const tokenResponse = await axios.post('https://login.microsoftonline.com/common/oauth2/v2.0/token', querystring.stringify({
+            client_id: process.env.MICROSOFT_CLIENT_ID,
+            client_secret: process.env.MICROSOFT_CLIENT_SECRET,
+            redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+            grant_type: 'authorization_code',
+            code: code,
+        }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+
+        const accessToken = tokenResponse.data.access_token;
+
+        // ✅ ใช้ Access Token ดึงข้อมูลผู้ใช้จาก Microsoft Graph API
+        const userResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const { displayName, mail } = userResponse.data;
+        console.log(`✅ Microsoft Login Success: ${displayName} (${mail})`);
+
+        // ✅ Redirect กลับไปหน้า Login พร้อมแสดงผล
+        res.redirect(`/login.html?success=true&name=${encodeURIComponent(displayName)}&email=${encodeURIComponent(mail)}`);
+
+    } catch (error) {
+        console.error("❌ Microsoft Login Failed:", error.response ? error.response.data : error.message);
+        res.redirect(`/login.html?error=true`);
+    }
+});

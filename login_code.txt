@@ -1,0 +1,167 @@
+//ใช้บนเครื่องตัวเอง
+/*async function fetchConfig() {
+    const response = await fetch("http://localhost:3001/config"); 
+    const config = await response.json();
+    return config;
+}*/
+
+let config = null;  // ✅ กำหนดตัวแปร config ไว้ที่ด้านบนสุด
+
+async function fetchConfig() {
+    if (!config) {  // ✅ โหลดค่าครั้งเดียว
+        try {
+            const response = await fetch("/config");
+            config = await response.json();
+            console.log("✅ Config Loaded:", config);
+        } catch (error) {
+            console.error("❌ Failed to fetch config:", error);
+            alert("❌ Failed to load configuration. Please try again.");
+            return null;  // ✅ ป้องกัน Error ถ้าโหลด config ไม่สำเร็จ
+        }
+    }
+    return config;
+}
+
+// ✅ วิธีใช้ใน `loginWithGoogle()`
+async function loginWithGoogle() {
+    const config = await fetchConfig();  // ✅ โหลด config ก่อนใช้
+
+    if (!config || !config.clientId) {  // ✅ เช็คว่าค่ามาหรือไม่
+        console.error("❌ Google Client ID is missing!");
+        alert("❌ Google Client ID not found. Please check the configuration.");
+        return;
+    }
+
+    console.log("✅ Google Client ID:", config.clientId);
+
+    google.accounts.id.initialize({
+        client_id: config.clientId,  // ✅ ใช้ clientId ที่ถูกต้อง
+        callback: async (response) => {
+            if (!response.credential) {
+                console.error("❌ Google Login Failed: No credential received.");
+                alert("❌ Google Login Failed. Please check your Google account settings.");
+                return;
+            }
+
+            console.log("✅ Google Response:", response);
+
+            const idToken = response.credential;  // ✅ ใช้ ID Token
+            const serverResponse = await fetch(`${config.apiBaseUrl}/auth/google`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: idToken })
+            });
+
+            const data = await serverResponse.json();
+            console.log("📨 Server Response:", data);
+
+            if (serverResponse.ok) {
+                alert(`✅ Login Success! \nName: ${data.name}\nEmail: ${data.email}`);
+            } else {
+                console.error("❌ Server Error:", data);
+                alert(`❌ Login Failed: ${data.error}`);
+            }
+        },
+        ux_mode: "redirect",  // ✅ เปลี่ยนจาก "popup" เป็น "redirect"
+        //ux_mode: "popup",  // ✅ ใช้ popup แทน FedCM
+        //prompt: "consent",
+        login_uri: `${config.apiBaseUrl}/auth/google/callback`,  // ✅ ใช้ค่า redirect URI ที่ถูกต้อง
+        itp_support: true,  // ✅ เปิดใช้ Intelligent Tracking Prevention (แก้ปัญหา Cookies ถูกบล็อก)
+        use_fedcm_for_prompt: true  // ✅ บังคับให้ใช้ FedCM เพื่อรองรับการเปลี่ยนแปลงในอนาคต
+    });
+
+    google.accounts.id.prompt((notification) => {
+        console.log("🔍 Google Prompt Status:", notification);
+    
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            console.error("❌ Google Login Prompt was not displayed:", notification);
+            //alert("❌ Google Login was blocked. Try disabling pop-up blockers or using another browser.");
+
+             // ✅ บังคับไปที่หน้า Google Login เต็มรูปแบบ
+            window.location.href = `https://accounts.google.com/o/oauth2/auth?client_id=${config.clientId}&redirect_uri=${config.apiBaseUrl}/auth/google/callback&response_type=code&scope=openid%20email%20profile`;
+
+            console.log("🔗 Redirecting to Google Login:", googleLoginUrl);
+            window.location.href = googleLoginUrl;
+        }
+    }, { cancel_on_tap_out: false });
+
+// 📌 เพิ่มฟังก์ชันสำหรับอ่านค่าจาก Query String และแสดงผลหลัง Redirect
+window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const name = urlParams.get('name');
+    const email = urlParams.get('email');
+
+    if (success === 'true' && name && email) {
+        alert(`✅ Google Login Success!\nName: ${decodeURIComponent(name)}\nEmail: ${decodeURIComponent(email)}`);
+    }
+};
+    
+}
+
+function loginWithMicrosoft() {
+    window.location.href = "/auth/microsoft";
+}
+
+// Event Listeners
+document.getElementById('language-switch').addEventListener('change', toggleLanguage);
+document.getElementById('google-login').addEventListener('click', loginWithGoogle);
+document.getElementById('microsoft-login').addEventListener('click', loginWithMicrosoft);
+
+// ฟังก์ชันสำหรับเปลี่ยนภาษา
+function toggleLanguage() {
+    const isThai = document.getElementById('language-switch').checked;
+
+    // องค์ประกอบข้อความ
+    const elements = {
+        mainTitle: document.getElementById('main-title'),
+        subTitle: document.getElementById('sub-title'),
+        message1: document.getElementById('message-1'),
+        message2: document.getElementById('message-2'),
+        loginTitle: document.getElementById('login-title'),
+        googleLoginText: document.getElementById('google-login-text'),
+        microsoftLoginText: document.getElementById('microsoft-login-text'),
+        languageLabel: document.getElementById('language-label')
+    };
+
+    // ข้อความภาษาไทยและอังกฤษ
+    const textContent = {
+        thai: {
+            mainTitle: "ยินดีต้อนรับสู่",
+            subTitle: "หอสมุดมหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี",
+            message1: "ในหน้าต่างนี้จะเป็นการเข้าสู่ระบบเพื่อดูประวัติการยืมหนังสือของท่าน",
+            message2: "คุณสามารถเข้าสู่ระบบผ่าน Gmail และ Microsoft ได้ใต้ข้อความนี้",
+            loginTitle: "เข้าสู่ระบบ",
+            googleLoginText: "เข้าสู่ระบบด้วย Google",
+            microsoftLoginText: "เข้าสู่ระบบด้วย Microsoft",
+            languageLabel: "ภาษาไทย"
+        },
+        english: {
+            mainTitle: "Welcome to",
+            subTitle: "KMUTT Library",
+            message1: "This window allows you to log in and check your book borrowing history.",
+            message2: "You can log in via Gmail and Microsoft below.",
+            loginTitle: "Login",
+            googleLoginText: "Login with Google",
+            microsoftLoginText: "Login with Microsoft",
+            languageLabel: "English"
+        }
+    };
+
+    const language = isThai ? "english" : "thai";
+    elements.mainTitle.textContent = textContent[language].mainTitle;
+    elements.subTitle.textContent = textContent[language].subTitle;
+    elements.message1.textContent = textContent[language].message1;
+    elements.message2.textContent = textContent[language].message2;
+    elements.loginTitle.textContent = textContent[language].loginTitle;
+    elements.googleLoginText.textContent = textContent[language].googleLoginText;
+    elements.microsoftLoginText.textContent = textContent[language].microsoftLoginText;
+    elements.languageLabel.textContent = textContent[language].languageLabel;
+}
+
+// เพิ่ม Event Listener เมื่อหน้าโหลดเสร็จ
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLanguage();
+    const languageSwitch = document.getElementById('language-switch');
+    languageSwitch.addEventListener('change', toggleLanguage);
+});
