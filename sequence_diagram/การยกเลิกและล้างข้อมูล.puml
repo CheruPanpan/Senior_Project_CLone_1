@@ -1,0 +1,15 @@
+@startuml
+actor User
+participant "LIFF App" as LIFF
+participant "Server" as Server
+participant "LINE Client" as LINE
+participant "global.verifiedBooks" as Books
+
+User -> LIFF: คลิกปุ่ม "Delete a book entry"
+LIFF -> Server: POST /api/cancel-recommendations (ส่ง userId)
+Server -> Books: ลบข้อมูลหนังสือของ userId
+Server -> LIFF: ส่งผลลัพธ์ (success: true)
+LIFF -> LINE: เรียก liff.closeWindow()
+LINE -> User: ปิด LIFF app
+
+@enduml

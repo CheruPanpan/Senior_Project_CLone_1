@@ -1,0 +1,47 @@
+@startuml
+!define RECTANGLE class
+
+actor User
+
+participant "Client (Browser)" as Client
+participant "Server" as Server
+participant "LINE LIFF" as LIFF
+participant "Microsoft OAuth" as MSOAuth
+
+== เริ่มต้นการ Login ==
+User -> Client: เปิดหน้า login.html
+Client -> LIFF: เริ่มต้น LIFF
+LIFF -> LIFF: ตรวจสอบสถานะ login กับ LINE
+alt ผู้ใช้ยังไม่ได้ login กับ LINE
+    LIFF -> User: แสดงหน้า login ของ LINE
+    User -> LIFF: กรอกข้อมูลเพื่อ login กับ LINE
+    LIFF -> Client: ส่ง userId
+else ผู้ใช้ login กับ LINE อยู่แล้ว
+    LIFF -> Client: ส่ง userId
+end alt
+
+== ตรวจสอบและดำเนินการ Login กับ Microsoft ==
+Client -> Server: ตรวจสอบสถานะ Microsoft login (/api/check-login?lineUserId={userId})
+Server -> Client: ส่งผลลัพธ์
+alt ผู้ใช้ login กับ Microsoft แล้ว
+    Client -> User: แสดงหน้า purchase.html
+else ผู้ใช้ยังไม่ได้ login กับ Microsoft
+    Client -> User: แสดงปุ่ม "Login with Microsoft"
+    User -> Client: คลิกปุ่ม "Login with Microsoft"
+    Client -> Server: เริ่มกระบวนการ Microsoft login (/auth/microsoft?lineUserId={userId})
+    Server -> MSOAuth: Redirect ไปหน้า login ของ Microsoft
+    MSOAuth -> User: ขอให้เลือกบัญชี Microsoft
+    User -> MSOAuth: กรอกข้อมูลและยืนยัน
+    MSOAuth -> Server: ส่ง code กลับ (/auth/microsoft/callback)
+    Server -> MSOAuth: แลก code เป็น access token และดึงข้อมูลผู้ใช้
+    MSOAuth -> Server: ส่งข้อมูลผู้ใช้ (ชื่อ, อีเมล)
+    alt อีเมลถูกต้อง (@kmutt.ac.th)
+        Server -> Client: Redirect ไป purchase.html
+        Client -> User: แสดงหน้าเลือกหนังสือ
+    else อีเมลไม่ถูกต้อง
+        Server -> Client: Redirect ไป login.html?error=invalid_domain
+        Client -> User: แสดงข้อความ error
+    end alt
+end alt
+
+@enduml 

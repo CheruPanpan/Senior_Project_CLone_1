@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "LINE Client" as LINE
+participant "LIFF App" as LIFF
+participant "Server" as Server
+
+User -> LINE: เปิด LIFF app (login success=true)
+LINE -> LIFF: โหลดหน้า login
+LIFF -> LINE: เรียก liff.init({ liffId })
+LINE -> LIFF: ส่งผลลัพธ์การ init
+alt LIFF init สำเร็จ
+    LIFF -> LINE: เรียก liff.getProfile()
+    LINE -> LIFF: ส่ง lineUserId
+    LIFF -> LIFF: ตรวจสอบ query parameter (success=true)
+    LIFF -> Server: Redirect ไปยัง purchase เพื่อดึง lineUserId
+    LIFF -> User: แสดงหน้าเลือกหนังสือ
+else LIFF init ล้มเหลว
+    LIFF -> User: แสดงข้อความ "LIFF initialization failed"
+end
+
+@enduml
