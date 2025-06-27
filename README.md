@@ -3,3 +3,5 @@ This repository is the cloned version of senior project repository for For job a
 
 ## This is preview of this project (Line chatbot for book recommendation)
 <img src="Picture_Readme/Real_UI_2.jpg" width="300"/>
+
+<img src="Picture_Readme/Real_UI_3.jpg" width="300"/>
