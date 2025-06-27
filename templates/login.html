@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LIFF Login</title>
+  <!-- เพิ่ม Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- โหลด CSS -->
+  <link rel="stylesheet" href="login.css">
+  <!-- โหลด LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+   <!-- <script src="https://accounts.google.com/gsi/client" async defer></script>-->
+  <script src="login.js" defer></script>
+</head>
+<body>
+  <!-- Top Controls -->
+  <div class="top-controls">
+    <!-- Theme Switch -->
+    <div class="theme-switch">
+      <input type="checkbox" class="checkbox" id="theme-switch" />
+      <label for="theme-switch" class="label">
+          <svg class="sun" width="12" height="12" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 12L23 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 2V1" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 23V22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 20L19 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 4L19 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 20L5 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 4L5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M1 12L2 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="moon" width="12" height="12" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 11.5066C3 16.7497 7.25034 21 12.4934 21C16.2209 21 19.4466 18.8518 21 15.7259C12.4934 15.7259 8.27411 11.5066 8.27411 3C5.14821 4.55344 3 7.77915 3 11.5066Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="ball"></div>
+      </label>
+    </div>
+    
+    <!-- Language Switch -->
+    <div class="lang-switch">
+      <button class="lang-btn" data-lang="en">EN</button>
+      <span class="separator">|</span>
+      <button class="lang-btn" data-lang="th">TH</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <h1 class="main-title" id="main-title">ยินดีต้อนรับสู่</h1>
+    <h2 class="sub-title" id="sub-title">หน้าขอหนังสือของมหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี</h2>
+  </header>
+
+  <!-- Messages -->
+  <main class="background-message">
+    <p id="message-1">ในหน้าต่างนี้จะเป็นการเข้าสู่ระบบเพื่อใช้ในการขอหนังสือให้แก่ผู้ใช้งาน</p>
+    <p id="message-2">คุณสามารถเข้าสู่ระบบผ่าน Microsoft ได้ใต้ข้อความนี้</p>
+  </main>
+
+  <!-- Login Container -->
+  <div class="container">
+    <div class="card">
+      <h1 class="title" id="login-title">เข้าสู่ระบบ</h1>
+      <!--<div id="user-info"></div>-->
+      <button id="microsoft-login" class="btn">
+      <!-- <button id="microsoft-login" class="btn" style="display: none;"> -->
+        <img src="/image/Microsoft_Logo_512px.png" alt="Login with Microsoft" class="btn-icon">
+        <span id="microsoft-login-text">เข้าสู่ระบบด้วย Microsoft</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification
+  <div id="toast" class="toast" style="display: none;">
+    <p id="toast-message"></p>
+  </div> -->
+
+</body>
+</html>
