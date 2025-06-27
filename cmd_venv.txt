@@ -1,8 +1,0 @@
-# คำสั่ง Run venv บน Windows
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-& venv\Scripts\activate
-
-# ถ้ารันไม่ได้ ให้ทำตามแบบนี้ (สร้าง venv ใหม่)
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
