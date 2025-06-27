@@ -5,3 +5,6 @@ This repository is the cloned version of senior project repository for For job a
 <img src="Picture_Readme/Real_UI_2.jpg" width="300"/>
 
 <img src="Picture_Readme/Real_UI_3.jpg" width="300"/>
+
+#### video preview
+https://youtu.be/FJ6jt_HK5OI
